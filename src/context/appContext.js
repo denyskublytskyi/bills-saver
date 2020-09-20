@@ -1,0 +1,68 @@
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+import * as firebase from "firebase";
+import noop from "lodash/noop";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyASFO8tv9fqsASlbgUGSIUT3xU9ypU0v0Y",
+    appId: "1:470502617058:web:3a21c33ac8e54f4ee8d3bb",
+    authDomain: "bills-saver.firebaseapp.com",
+    clientID:
+        "470502617058-59ljik0e0kcekoatmfdla5mp4tvn1k7o.apps.googleusercontent.com",
+    databaseURL: "https://bills-saver.firebaseio.com",
+    messagingSenderId: "470502617058",
+    projectId: "bills-saver",
+    storageBucket: "bills-saver.appspot.com",
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+const AppContext = createContext({
+    auth,
+    firebaseConfig,
+    isLoading: false,
+    signOut: noop,
+    user: null,
+});
+
+const AppContextProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const signOut = useCallback(() => auth.signOut(), []);
+
+    useEffect(() => {
+        const unregisterAuthObserver = auth.onAuthStateChanged((user) => {
+            setUser(user);
+            setIsLoading(false);
+        });
+        return () => {
+            unregisterAuthObserver();
+        };
+    });
+
+    return (
+        <AppContext.Provider
+            value={{
+                auth,
+                firebaseConfig,
+                isLoading,
+                signOut,
+                user,
+            }}
+        >
+            {children}
+        </AppContext.Provider>
+    );
+};
+
+const useAppContext = () => useContext(AppContext);
+
+export { useAppContext, AppContextProvider };
