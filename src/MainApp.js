@@ -104,7 +104,7 @@ const MainApp = () => {
             );
             form.append("file", file);
 
-            const response = await fetch(
+            await fetch(
                 "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
                 {
                     body: form,
