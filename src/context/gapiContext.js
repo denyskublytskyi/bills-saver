@@ -40,10 +40,6 @@ const GapiProvider = ({ children }) => {
             })
             .then(() => {
                 logger.info("Google API is initialized");
-
-                if (!window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
-                    signOut();
-                }
                 setGapi(window.gapi);
             });
     }, [user, firebaseConfig.apiKey, firebaseConfig.clientID, signOut]);
