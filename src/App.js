@@ -8,7 +8,6 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import MainApp from "./MainApp";
 import Auth from "./Auth";
 import { AppContextProvider, useAppContext } from "./context/appContext";
-import { GapiProvider } from "./context/gapiContext";
 
 const App = () => {
     const { isLoading, user } = useAppContext();
@@ -32,9 +31,7 @@ const App = () => {
 export default () => (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <AppContextProvider>
-            <GapiProvider>
-                <App />
-            </GapiProvider>
+            <App />
         </AppContextProvider>
     </MuiPickersUtilsProvider>
 );
