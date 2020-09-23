@@ -16,7 +16,7 @@ const GapiContext = createContext({
 
 const GapiProvider = ({ children }) => {
     const [gapi, setGapi] = useState(null);
-    const { firebaseConfig, user } = useAppContext();
+    const { firebaseConfig, user, signOut } = useAppContext();
 
     const initGapi = useCallback(() => {
         window.gapi.load("client:auth2", async () => {
@@ -40,13 +40,13 @@ const GapiProvider = ({ children }) => {
             })
             .then(() => {
                 logger.info("Google API is initialized");
+
+                if (!window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                    signOut();
+                }
                 setGapi(window.gapi);
-                logger.info(
-                    "Access token",
-                    window.gapi.auth.getToken().access_token
-                );
             });
-    }, [user, firebaseConfig.apiKey, firebaseConfig.clientID, setGapi]);
+    }, [user, firebaseConfig.apiKey, firebaseConfig.clientID, signOut]);
 
     return (
         <GapiContext.Provider value={{ gapi }}>

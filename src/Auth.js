@@ -7,7 +7,10 @@ import { Box } from "@material-ui/core";
 
 const uiConfig = {
     callbacks: {
-        signInSuccessWithAuthResult: () => false,
+        signInSuccessWithAuthResult: ({ credential }) => {
+            window.gapi.auth.setToken(credential.accessToken);
+            return false;
+        },
     },
     signInFlow: "popup",
     signInOptions: [
