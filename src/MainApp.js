@@ -22,6 +22,7 @@ import { DatePicker } from "@material-ui/pickers";
 import Grid from "@material-ui/core/Grid";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { yellow, blue, green } from "@material-ui/core/colors";
+import Container from "@material-ui/core/Container";
 
 const config = {
     electricity: {
@@ -160,97 +161,101 @@ const MainApp = () => {
                 </Toolbar>
             </AppBar>
             <Box mt={7} p={2} pt={4}>
-                <Grid container spacing={4}>
-                    <Grid item xs={12}>
-                        <DatePicker
-                            inputVariant="outlined"
-                            fullWidth
-                            openTo="year"
-                            views={["year", "month"]}
-                            label="Month"
-                            disableFuture
-                            onChange={setDate}
-                            value={date}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <ElectricityButton
-                            fullWidth
-                            variant="contained"
-                            endIcon={<BatteryCharging60Icon fontSize="large" />}
-                            onClick={handleUploadClick("electricity")}
-                        >
-                            <Box
-                                p={5}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
+                <Container maxWidth="xs">
+                    <Grid container spacing={4}>
+                        <Grid item xs={12}>
+                            <DatePicker
+                                inputVariant="outlined"
+                                fullWidth
+                                openTo="year"
+                                views={["year", "month"]}
+                                label="Month"
+                                disableFuture
+                                onChange={setDate}
+                                value={date}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <ElectricityButton
+                                fullWidth
+                                variant="contained"
+                                endIcon={
+                                    <BatteryCharging60Icon fontSize="large" />
+                                }
+                                onClick={handleUploadClick("electricity")}
                             >
-                                <Typography variant="h6">
-                                    Electricity
-                                </Typography>
-                            </Box>
+                                <Box
+                                    p={5}
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
+                                    <Typography variant="h6">
+                                        Electricity
+                                    </Typography>
+                                </Box>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handleUpload("electricity")}
+                                    hidden
+                                    ref={electricityInputRef}
+                                />
+                            </ElectricityButton>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <WaterButton
+                                fullWidth
+                                variant="contained"
+                                endIcon={<WavesIcon fontSize="large" />}
+                                onClick={handleUploadClick("water")}
+                            >
+                                <Box
+                                    p={5}
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
+                                    <Typography variant="h6">Water</Typography>
+                                </Box>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handleUpload("water")}
+                                    hidden
+                                    ref={waterInputRef}
+                                />
+                            </WaterButton>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <HomeButton
+                                fullWidth
+                                variant="contained"
+                                endIcon={<HomeIcon fontSize="large" />}
+                                onClick={handleUploadClick("home")}
+                            >
+                                <Box
+                                    p={5}
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
+                                    <Typography variant="h6">Home</Typography>
+                                </Box>
+                            </HomeButton>
                             <input
                                 type="file"
                                 accept="image/*"
                                 capture="environment"
-                                onChange={handleUpload("electricity")}
+                                onChange={handleUpload("home")}
                                 hidden
-                                ref={electricityInputRef}
+                                ref={homeInputRef}
                             />
-                        </ElectricityButton>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                        <WaterButton
-                            fullWidth
-                            variant="contained"
-                            endIcon={<WavesIcon fontSize="large" />}
-                            onClick={handleUploadClick("water")}
-                        >
-                            <Box
-                                p={5}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                            >
-                                <Typography variant="h6">Water</Typography>
-                            </Box>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                onChange={handleUpload("water")}
-                                hidden
-                                ref={waterInputRef}
-                            />
-                        </WaterButton>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <HomeButton
-                            fullWidth
-                            variant="contained"
-                            endIcon={<HomeIcon fontSize="large" />}
-                            onClick={handleUploadClick("home")}
-                        >
-                            <Box
-                                p={5}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                            >
-                                <Typography variant="h6">Home</Typography>
-                            </Box>
-                        </HomeButton>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={handleUpload("home")}
-                            hidden
-                            ref={homeInputRef}
-                        />
-                    </Grid>
-                </Grid>
+                </Container>
             </Box>
         </>
     );
