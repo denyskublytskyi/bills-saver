@@ -17,7 +17,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "lint": "eslint . --fix",
+    "lint": "eslint ./src",
     "deploy": "yarn build && firebase deploy"
   },
   "eslintConfig": {
