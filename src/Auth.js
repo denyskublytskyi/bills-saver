@@ -3,6 +3,7 @@ import * as firebase from "firebase";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 
 import { useAppContext } from "./context/appContext";
+import { Box } from "@material-ui/core";
 
 const uiConfig = {
     callbacks: {
@@ -25,7 +26,16 @@ const uiConfig = {
 
 const Auth = () => {
     const { auth } = useAppContext();
-    return <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />;
+    return (
+        <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="100vh"
+        >
+            <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />
+        </Box>
+    );
 };
 
 export default Auth;

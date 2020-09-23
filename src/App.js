@@ -1,4 +1,6 @@
 import React from "react";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 import MainApp from "./MainApp";
 import Auth from "./Auth";
@@ -16,9 +18,11 @@ const App = () => {
 };
 
 export default () => (
-    <AppContextProvider>
-        <GapiProvider>
-            <App />
-        </GapiProvider>
-    </AppContextProvider>
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <AppContextProvider>
+            <GapiProvider>
+                <App />
+            </GapiProvider>
+        </AppContextProvider>
+    </MuiPickersUtilsProvider>
 );
