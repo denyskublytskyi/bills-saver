@@ -254,6 +254,17 @@ const MainApp = () => {
                                 ref={homeInputRef}
                             />
                         </Grid>
+                        <Grid item container xs={12} justify="center">
+                            <Typography variant="caption">
+                                Bills saver{" "}
+                                <a
+                                    target="_blank"
+                                    href={`https://github.com/${process.env.REACT_APP_REPOSITORY}/commit/${process.env.REACT_APP_SHA}`}
+                                >
+                                    {process.env.REACT_APP_SHA}
+                                </a>
+                            </Typography>
+                        </Grid>
                     </Grid>
                 </Container>
             </Box>

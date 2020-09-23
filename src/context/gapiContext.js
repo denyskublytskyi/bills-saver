@@ -6,6 +6,7 @@ import React, {
     useState,
 } from "react";
 import Script from "react-load-script";
+
 import logger from "../lib/logger";
 import { useAppContext } from "./appContext";
 
@@ -40,6 +41,10 @@ const GapiProvider = ({ children }) => {
             .then(() => {
                 logger.info("Google API is initialized");
                 setGapi(window.gapi);
+                logger.info(
+                    "Access token",
+                    window.gapi.auth.getToken().access_token
+                );
             });
     }, [user, firebaseConfig.apiKey, firebaseConfig.clientID, setGapi]);
 
