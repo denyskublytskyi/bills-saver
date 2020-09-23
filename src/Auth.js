@@ -2,13 +2,20 @@ import React from "react";
 import * as firebase from "firebase";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 
-import { useAppContext } from "./context/appContext";
 import { Box } from "@material-ui/core";
+
+import { useAppContext } from "./context/appContext";
+import logger from "./lib/logger";
 
 const uiConfig = {
     callbacks: {
         signInSuccessWithAuthResult: ({ credential }) => {
+            logger.info("Calling gapi.auth.setToken", credential.accessToken);
             window.gapi.auth.setToken(credential.accessToken);
+            logger.info(
+                "Calling gapi.auth.getToken",
+                window.gapi.auth.getToken()
+            );
             return false;
         },
     },
