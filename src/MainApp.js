@@ -259,6 +259,7 @@ const MainApp = () => {
                                 Bills saver{" "}
                                 <a
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                     href={`https://github.com/${process.env.REACT_APP_REPOSITORY}/commit/${process.env.REACT_APP_SHA}`}
                                 >
                                     {process.env.REACT_APP_SHA}
