@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import * as firebase from "firebase";
 import noop from "lodash/noop";
-import logger from "../lib/logger";
+import { useLocalStorage } from "react-use";
 
 const firebaseConfig = {
     apiKey: "AIzaSyASFO8tv9fqsASlbgUGSIUT3xU9ypU0v0Y",
@@ -27,7 +27,9 @@ const auth = firebase.auth();
 
 const AppContext = createContext({
     auth,
+    gapiToken: null,
     isLoading: false,
+    setGapiToken: noop,
     signOut: noop,
     user: null,
 });
@@ -35,35 +37,17 @@ const AppContext = createContext({
 const AppContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [gapiToken, setGapiToken] = useLocalStorage(
+        "gapi_access_token",
+        null,
+        { raw: true }
+    );
 
-    const signOut = useCallback(() => auth.signOut(), []);
+    const signOut = useCallback(async () => auth.signOut(), []);
 
     useEffect(() => {
         const unregisterAuthObserver = auth.onAuthStateChanged((user) => {
             setUser(user);
-
-            if (user) {
-                const script = document.createElement("script");
-                script.type = "text/javascript";
-                script.src = "https://apis.google.com/js/api.js";
-                script.onload = async () => {
-                    window.gapi.load("client:auth2", async () => {
-                        logger.info("Google API client is loaded");
-
-                        await window.gapi.client.init({
-                            apiKey: firebaseConfig.apiKey,
-                            clientId: firebaseConfig.clientID,
-                            discoveryDocs: [
-                                "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-                            ],
-                            scope: "https://www.googleapis.com/auth/drive",
-                        });
-                        setIsLoading(false);
-                    });
-                };
-                document.getElementsByTagName("head")[0].appendChild(script);
-                return;
-            }
             setIsLoading(false);
         });
         return () => {
@@ -75,7 +59,9 @@ const AppContextProvider = ({ children }) => {
         <AppContext.Provider
             value={{
                 auth,
+                gapiToken,
                 isLoading,
+                setGapiToken,
                 signOut,
                 user,
             }}

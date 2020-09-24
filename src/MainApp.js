@@ -23,6 +23,10 @@ import Grid from "@material-ui/core/Grid";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { yellow, blue, green } from "@material-ui/core/colors";
 import Container from "@material-ui/core/Container";
+import Snackbar from "@material-ui/core/Snackbar";
+import Slide from "@material-ui/core/Slide";
+import Alert from "@material-ui/lab/Alert";
+import { CircularProgress } from "@material-ui/core";
 
 const config = {
     electricity: {
@@ -58,7 +62,20 @@ const HomeButton = withStyles({
 })(Button);
 
 const MainApp = () => {
-    const { signOut, user } = useAppContext();
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState({});
+
+    const handleMessageClose = (event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+
+        setMessage(null);
+        setError(null);
+    };
+
+    const { signOut, user, gapiToken } = useAppContext();
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
 
@@ -72,7 +89,13 @@ const MainApp = () => {
         water: waterInputRef,
     };
 
-    const [date, setDate] = useState(new Date());
+    const [date, setDate] = useState(() => {
+        const value = new Date();
+        value.setDate(1);
+        value.setMonth(value.getMonth() - 1);
+
+        return value;
+    });
 
     const handleUploadClick = useCallback(
         (category) => () => inputRefs[category]?.current?.click(),
@@ -83,6 +106,8 @@ const MainApp = () => {
             if (!config[category]) {
                 return;
             }
+
+            setIsLoading({ ...isLoading, [category]: true });
 
             const file = e.target.files[0];
             const metadata = {
@@ -105,20 +130,56 @@ const MainApp = () => {
             );
             form.append("file", file);
 
-            await fetch(
-                "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
-                {
-                    body: form,
-                    headers: new Headers({
-                        Authorization: `Bearer ${
-                            window.gapi.auth.getToken().access_token
-                        }`,
-                    }),
-                    method: "POST",
+            if (!gapiToken) {
+                await signOut();
+            }
+
+            const params = new URLSearchParams({
+                fields: ["id", "webViewLink", "name"].join(","),
+                uploadType: "multipart",
+            });
+
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/upload/drive/v3/files?${params.toString()}`,
+                    {
+                        body: form,
+                        headers: new Headers({
+                            Authorization: `Bearer ${gapiToken}`,
+                        }),
+                        method: "POST",
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        await signOut();
+                        return;
+                    }
+                    throw new Error(result?.error?.message);
                 }
-            );
+
+                setMessage(
+                    <>
+                        Photo is uploaded{" "}
+                        <a
+                            href={result.webViewLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {result.name}
+                        </a>
+                    </>
+                );
+            } catch (e) {
+                setError(e.message);
+            } finally {
+                setIsLoading({ ...isLoading, [category]: false });
+            }
         },
-        [date]
+        [date, gapiToken, isLoading, signOut]
     );
 
     return (
@@ -180,7 +241,11 @@ const MainApp = () => {
                                 fullWidth
                                 variant="contained"
                                 endIcon={
-                                    <BatteryCharging60Icon fontSize="large" />
+                                    isLoading.electricity ? (
+                                        <CircularProgress />
+                                    ) : (
+                                        <BatteryCharging60Icon fontSize="large" />
+                                    )
                                 }
                                 onClick={handleUploadClick("electricity")}
                             >
@@ -208,7 +273,13 @@ const MainApp = () => {
                             <WaterButton
                                 fullWidth
                                 variant="contained"
-                                endIcon={<WavesIcon fontSize="large" />}
+                                endIcon={
+                                    isLoading.water ? (
+                                        <CircularProgress />
+                                    ) : (
+                                        <WavesIcon fontSize="large" />
+                                    )
+                                }
                                 onClick={handleUploadClick("water")}
                             >
                                 <Box
@@ -233,7 +304,13 @@ const MainApp = () => {
                             <HomeButton
                                 fullWidth
                                 variant="contained"
-                                endIcon={<HomeIcon fontSize="large" />}
+                                endIcon={
+                                    isLoading.home ? (
+                                        <CircularProgress />
+                                    ) : (
+                                        <HomeIcon fontSize="large" />
+                                    )
+                                }
                                 onClick={handleUploadClick("home")}
                             >
                                 <Box
@@ -266,6 +343,19 @@ const MainApp = () => {
                                 </a>
                             </Typography>
                         </Grid>
+                        <Snackbar
+                            TransitionComponent={Slide}
+                            open={Boolean(message) || Boolean(error)}
+                            onClose={handleMessageClose}
+                            autoHideDuration={6000}
+                        >
+                            <Alert
+                                severity={error ? "error" : "success"}
+                                onClose={handleMessageClose}
+                            >
+                                {error || message}
+                            </Alert>
+                        </Snackbar>
                     </Grid>
                 </Container>
             </Box>
