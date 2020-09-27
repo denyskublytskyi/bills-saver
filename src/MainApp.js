@@ -1,5 +1,6 @@
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import format from "date-fns/format";
+import { useRouteMatch, useHistory } from "react-router-dom";
 import localeRu from "date-fns/locale/ru";
 
 import AppBar from "@material-ui/core/AppBar";
@@ -181,6 +182,17 @@ const MainApp = () => {
         },
         [date, gapiToken, isLoading, signOut]
     );
+
+    const location = useRouteMatch();
+    const history = useHistory();
+
+    useEffect(() => {
+        const category = location?.params?.category;
+        if (category && inputRefs[category]) {
+            handleUploadClick(category)();
+            history.replace("/");
+        }
+    }, [handleUploadClick, history, inputRefs, location]);
 
     return (
         <>

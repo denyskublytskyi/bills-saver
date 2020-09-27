@@ -5,7 +5,8 @@ import React, {
     useEffect,
     useState,
 } from "react";
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
+import "firebase/auth";
 import noop from "lodash/noop";
 import { useLocalStorage } from "react-use";
 

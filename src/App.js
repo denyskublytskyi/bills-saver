@@ -1,6 +1,7 @@
 import React from "react";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Box from "@material-ui/core/Box";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -25,7 +26,20 @@ const App = () => {
         );
     }
 
-    return user ? <MainApp /> : <Auth />;
+    return user ? (
+        <Router>
+            <Switch>
+                <Route exact path="/add/:category">
+                    <MainApp />
+                </Route>
+                <Route path="/">
+                    <MainApp />
+                </Route>
+            </Switch>
+        </Router>
+    ) : (
+        <Auth />
+    );
 };
 
 export default () => (

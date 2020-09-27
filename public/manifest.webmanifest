@@ -24,23 +24,32 @@
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "shortcuts": [
-    { 
+    {
       "name": "Add Electricity bill",
       "short_name": "Electricity",
       "description": "Add Electricity bill photo",
-      "url": "/add/electricity?source=pwa"
+      "url": "/add/electricity?source=pwa",
+      "icons": [{
+        "src": "/icons/electricity.png", "sizes": "192x192"
+      }]
     },
     {
       "name": "Add Water bill",
       "short_name": "Water",
       "description": "Add Water bill photo",
-      "url": "/add/water?source=pwa"
+      "url": "/add/water?source=pwa",
+      "icons": [{
+        "src": "/icons/water.png", "sizes": "192x192"
+      }]
     },
     {
       "name": "Add Home bill",
       "short_name": "Home",
       "description": "Add Home bill photo",
-      "url": "/add/home?source=pwa"
+      "url": "/add/home?source=pwa",
+      "icons": [{
+        "src": "/icons/home.png", "sizes": "192x192"
+      }]
     }
   ]
 }
