@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import * as firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/database";
 import noop from "lodash/noop";
 import { useLocalStorage } from "react-use";
 
@@ -25,9 +26,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
+const db = firebase.database();
 
 const AppContext = createContext({
     auth,
+    db,
+    firebaseConfig,
+    folders: null,
     gapiToken: null,
     isLoading: false,
     setGapiToken: noop,
@@ -56,10 +61,25 @@ const AppContextProvider = ({ children }) => {
         };
     });
 
+    const [folders, setFolders] = useState();
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+        db.ref(`settings/${user.uid}`)
+            .child("folders")
+            .on("value", (snap) => {
+                setFolders(snap.val());
+            });
+    }, [user]);
+
     return (
         <AppContext.Provider
             value={{
                 auth,
+                db,
+                firebaseConfig,
+                folders,
                 gapiToken,
                 isLoading,
                 setGapiToken,
