@@ -54,7 +54,7 @@ const Home = () => {
         setError(null);
     };
 
-    const { signOut, gapiToken, folders } = useAppContext();
+    const { signOut, gapiToken, folders, filenamePattern } = useAppContext();
 
     const waterInputRef = useRef();
     const electricityInputRef = useRef();
@@ -90,7 +90,7 @@ const Home = () => {
             const file = e.target.files[0];
             const metadata = {
                 mimeType: file.type,
-                name: "{date} счёт".replace(
+                name: filenamePattern.replace(
                     "{date}",
                     format(date, "MM.yyyy", {
                         locale: localeRu,
@@ -157,7 +157,7 @@ const Home = () => {
                 setIsLoading({ ...isLoading, [category]: false });
             }
         },
-        [date, folders, gapiToken, isLoading, signOut]
+        [date, filenamePattern, folders, gapiToken, isLoading, signOut]
     );
 
     const location = useRouteMatch();
