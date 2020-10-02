@@ -31,9 +31,11 @@ const db = firebase.database();
 const AppContext = createContext({
     auth,
     db,
+    filenamePattern: undefined,
     firebaseConfig,
-    folders: null,
+    folders: undefined,
     gapiToken: null,
+    isDBLoading: true,
     isLoading: false,
     setGapiToken: noop,
     signOut: noop,
@@ -43,6 +45,7 @@ const AppContext = createContext({
 const AppContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDBLoading, setIsDBLoading] = useState(true);
     const [gapiToken, setGapiToken] = useLocalStorage(
         "gapi_access_token",
         null,
@@ -61,16 +64,18 @@ const AppContextProvider = ({ children }) => {
         };
     });
 
-    const [folders, setFolders] = useState();
+    const [folders, setFolders] = useState({});
+    const [filenamePattern, setFilenamePattern] = useState("{date} счёт");
     useEffect(() => {
         if (!user) {
             return;
         }
-        db.ref(`settings/${user.uid}`)
-            .child("folders")
-            .on("value", (snap) => {
-                setFolders(snap.val());
-            });
+        db.ref(`settings/${user.uid}`).on("value", (snap) => {
+            const value = snap.val();
+            setFolders(value?.folders || {});
+            setFilenamePattern(value?.filenamePattern || "{date} счёт");
+            setIsDBLoading(false);
+        });
     }, [user]);
 
     return (
@@ -78,9 +83,11 @@ const AppContextProvider = ({ children }) => {
             value={{
                 auth,
                 db,
+                filenamePattern,
                 firebaseConfig,
                 folders,
                 gapiToken,
+                isDBLoading,
                 isLoading,
                 setGapiToken,
                 signOut,

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Script from "react-load-script";
 import capitalize from "lodash/capitalize";
 
@@ -12,17 +12,34 @@ import List from "@material-ui/core/List";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
+import TextField from "@material-ui/core/TextField";
+import InputAdornment from "@material-ui/core/InputAdornment";
 
 import FolderIcon from "@material-ui/icons/Folder";
 import EditIcon from "@material-ui/icons/Edit";
+import DoneIcon from "@material-ui/icons/Done";
+import ClearIcon from "@material-ui/icons/Clear";
 
 import logger from "./lib/logger";
 import { useAppContext } from "./context/appContext";
 import Loader from "./Loader";
 
 const Settings = () => {
-    const { firebaseConfig, gapiToken, db, user, folders } = useAppContext();
+    const {
+        firebaseConfig,
+        gapiToken,
+        db,
+        user,
+        folders,
+        filenamePattern,
+    } = useAppContext();
+
     const [isPickerLoading, setIsPickerLoading] = useState(true);
+    const [namePattern, setNamePattern] = useState(filenamePattern);
+
+    useEffect(() => {
+        setNamePattern(filenamePattern);
+    }, [filenamePattern]);
 
     const onPickerApiLoad = useCallback(() => {
         logger.info("Google Picker is loaded");
@@ -73,10 +90,56 @@ const Settings = () => {
         [db, firebaseConfig.appId, gapiToken, user.uid]
     );
 
+    const handleFilenamePatternChange = useCallback(() => {
+        db.ref(`settings/${user.uid}`)
+            .child("filenamePattern")
+            .set(namePattern);
+    }, [db, namePattern, user.uid]);
+
+    const handleClearFilenameChange = useCallback(() => {
+        setNamePattern(filenamePattern);
+    }, [filenamePattern]);
+
+    const handleNamePatternChange = useCallback((e) => {
+        setNamePattern(e.target.value);
+    }, []);
+
     return (
         <Container maxWidth="xs">
-            {folders !== undefined && !isPickerLoading ? (
+            {!isPickerLoading ? (
                 <>
+                    <TextField
+                        margin="normal"
+                        fullWidth
+                        label="Filename pattern"
+                        InputLabelProps={{ shrink: true }}
+                        value={namePattern}
+                        onChange={handleNamePatternChange}
+                        InputProps={{
+                            endAdornment: namePattern !== filenamePattern && (
+                                <InputAdornment position="end">
+                                    <>
+                                        <IconButton
+                                            color="default"
+                                            size="small"
+                                            onClick={handleClearFilenameChange}
+                                        >
+                                            <ClearIcon />
+                                        </IconButton>
+                                        <IconButton
+                                            color="primary"
+                                            size="small"
+                                            onClick={
+                                                handleFilenamePatternChange
+                                            }
+                                        >
+                                            <DoneIcon />
+                                        </IconButton>
+                                    </>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                     <Typography variant="caption" color="textSecondary">
                         Folders
                     </Typography>
@@ -116,7 +179,7 @@ const Settings = () => {
                         ))}
                     </List>
                     <Typography variant="caption">
-                        <Box textAlign="center">
+                        <Box textAlign="center" pt>
                             Bills saver{" "}
                             <a
                                 target="_blank"

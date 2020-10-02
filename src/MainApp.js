@@ -21,9 +21,11 @@ import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import SettingsIcon from "@material-ui/icons/Settings";
+import HomeIcon from "@material-ui/icons/Home";
 
 import Settings from "./Settings";
 import Home from "./Home";
+import Loader from "./Loader";
 
 const MainApp = () => {
     const { signOut, user } = useAppContext();
@@ -104,6 +106,16 @@ const MainApp = () => {
                 <List component="nav">
                     <ListItem
                         button
+                        selected={location.pathname === "/"}
+                        onClick={goTo("/")}
+                    >
+                        <ListItemIcon>
+                            <HomeIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Home" />
+                    </ListItem>
+                    <ListItem
+                        button
                         selected={location.pathname === "/settings"}
                         onClick={goTo("/settings")}
                     >
@@ -119,19 +131,20 @@ const MainApp = () => {
 };
 
 export default () => {
+    const { isLoading, isDBLoading } = useAppContext();
     return (
         <Box mt={7} p={2} pt={4}>
             <Router>
                 <MainApp />
                 <Switch>
                     <Route exact path="/add/:category">
-                        <Home />
+                        {!isDBLoading && !isLoading ? <Home /> : <Loader />}
                     </Route>
                     <Route exact path="/settings">
-                        <Settings />
+                        {!isDBLoading && !isLoading ? <Settings /> : <Loader />}
                     </Route>
                     <Route path="/">
-                        <Home />
+                        {!isDBLoading && !isLoading ? <Home /> : <Loader />}
                     </Route>
                 </Switch>
             </Router>
