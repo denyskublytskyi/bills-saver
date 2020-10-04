@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import format from "date-fns/format";
 import { useRouteMatch, useHistory } from "react-router-dom";
-import localeRu from "date-fns/locale/ru";
-
-import Box from "@material-ui/core/Box";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import BatteryCharging60Icon from "@material-ui/icons/BatteryCharging60";
 import WavesIcon from "@material-ui/icons/Waves";
@@ -20,7 +18,10 @@ import Container from "@material-ui/core/Container";
 import Snackbar from "@material-ui/core/Snackbar";
 import Slide from "@material-ui/core/Slide";
 import Alert from "@material-ui/lab/Alert";
-import { CircularProgress } from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Box from "@material-ui/core/Box";
+
+import dateFnsLocales from "./translations";
 
 const ElectricityButton = withStyles({
     root: {
@@ -54,7 +55,13 @@ const Home = () => {
         setError(null);
     };
 
-    const { signOut, gapiToken, folders, filenamePattern } = useAppContext();
+    const {
+        signOut,
+        gapiToken,
+        folders,
+        filenamePattern,
+        locale,
+    } = useAppContext();
 
     const waterInputRef = useRef();
     const electricityInputRef = useRef();
@@ -93,7 +100,7 @@ const Home = () => {
                 name: filenamePattern.replace(
                     "{date}",
                     format(date, "MM.yyyy", {
-                        locale: localeRu,
+                        locale: dateFnsLocales[locale],
                     })
                 ),
                 parents: [folder.id],
@@ -157,7 +164,7 @@ const Home = () => {
                 setIsLoading({ ...isLoading, [category]: false });
             }
         },
-        [date, filenamePattern, folders, gapiToken, isLoading, signOut]
+        [date, filenamePattern, folders, gapiToken, isLoading, locale, signOut]
     );
 
     const location = useRouteMatch();
@@ -171,6 +178,8 @@ const Home = () => {
         }
     }, [handleUploadClick, history, inputRefs, location]);
 
+    const intl = useIntl();
+
     return (
         <Container maxWidth="xs">
             <Grid container spacing={4}>
@@ -180,7 +189,9 @@ const Home = () => {
                         fullWidth
                         openTo="year"
                         views={["year", "month"]}
-                        label="Month"
+                        label={intl.formatMessage({
+                            id: "Home.monthLabel",
+                        })}
                         disableFuture
                         onChange={setDate}
                         value={date}
@@ -205,7 +216,9 @@ const Home = () => {
                             alignItems="center"
                             justifyContent="center"
                         >
-                            <Typography variant="h6">Electricity</Typography>
+                            <Typography variant="h6">
+                                <FormattedMessage id="Category.electricity" />
+                            </Typography>
                         </Box>
                         <input
                             type="file"
@@ -236,7 +249,9 @@ const Home = () => {
                             alignItems="center"
                             justifyContent="center"
                         >
-                            <Typography variant="h6">Water</Typography>
+                            <Typography variant="h6">
+                                <FormattedMessage id="Category.water" />
+                            </Typography>
                         </Box>
                         <input
                             type="file"
@@ -267,7 +282,9 @@ const Home = () => {
                             alignItems="center"
                             justifyContent="center"
                         >
-                            <Typography variant="h6">Home</Typography>
+                            <Typography variant="h6">
+                                <FormattedMessage id="Category.home" />
+                            </Typography>
                         </Box>
                     </HomeButton>
                     <input

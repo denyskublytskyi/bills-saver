@@ -1,0 +1,24 @@
+{
+  "MainApp": {
+    "signOutButton": "Sign out",
+    "menu": {
+      "home": "Home",
+      "settings": "Settings"
+    }
+  },
+  "Home": {
+    "monthLabel": "Month"
+  },
+  "Settings": {
+    "foldersTitle": "Folders",
+    "fileNamePatternLabel": "Filename pattern"
+  },
+  "Category": {
+    "electricity": "Electricity",
+    "water": "Water",
+    "home": "Home"
+  },
+  "LanguageSelect": {
+    "label": "Language"
+  }
+}
