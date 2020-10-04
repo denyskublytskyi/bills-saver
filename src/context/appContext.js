@@ -30,6 +30,7 @@ const db = firebase.database();
 
 const AppContext = createContext({
     auth,
+    changeLocale: noop,
     db,
     filenamePattern: undefined,
     firebaseConfig,
@@ -37,6 +38,7 @@ const AppContext = createContext({
     gapiToken: null,
     isDBLoading: true,
     isLoading: false,
+    language: null,
     setGapiToken: noop,
     signOut: noop,
     user: null,
@@ -46,6 +48,12 @@ const AppContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDBLoading, setIsDBLoading] = useState(true);
+    const [locale, setLocale] = useState(() => {
+        const locale = (navigator.language || navigator.languages[0] || "en-GB")
+            .split(/[-_]/)[0]
+            .toLowerCase();
+        return ["ru", "uk", "en"].includes(locale) ? locale : "en";
+    });
     const [gapiToken, setGapiToken] = useLocalStorage(
         "gapi_access_token",
         null,
@@ -74,14 +82,26 @@ const AppContextProvider = ({ children }) => {
             const value = snap.val();
             setFolders(value?.folders || {});
             setFilenamePattern(value?.filenamePattern || "{date} счёт");
+
+            if (value?.locale) {
+                setLocale(value.locale);
+            }
             setIsDBLoading(false);
         });
     }, [user]);
+
+    const changeLocale = useCallback(
+        (locale) => {
+            db.ref(`settings/${user.uid}`).child("locale").set(locale);
+        },
+        [user]
+    );
 
     return (
         <AppContext.Provider
             value={{
                 auth,
+                changeLocale,
                 db,
                 filenamePattern,
                 firebaseConfig,
@@ -89,6 +109,7 @@ const AppContextProvider = ({ children }) => {
                 gapiToken,
                 isDBLoading,
                 isLoading,
+                locale,
                 setGapiToken,
                 signOut,
                 user,

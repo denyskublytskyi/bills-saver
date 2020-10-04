@@ -1,0 +1,24 @@
+{
+  "MainApp": {
+    "signOutButton": "Выйти",
+    "menu": {
+      "home": "Дом",
+      "settings": "Настройки"
+    }
+  },
+  "Home": {
+    "monthLabel": "Месяц"
+  },
+  "Settings": {
+    "foldersTitle": "Папки",
+    "fileNamePatternLabel": "Название файлов"
+  },
+  "Category": {
+    "electricity": "Электричество",
+    "water": "Вода",
+    "home": "ЖЭК"
+  },
+  "LanguageSelect": {
+    "label": "Язык"
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useLocation, useHistory } from "react-router-dom";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -56,6 +57,8 @@ const MainApp = () => {
         [history, location.pathname]
     );
 
+    const intl = useIntl();
+
     return (
         <>
             <AppBar position="fixed">
@@ -92,7 +95,7 @@ const MainApp = () => {
                                 color="inherit"
                                 onClick={signOut}
                             >
-                                Sign out
+                                <FormattedMessage id="MainApp.signOutButton" />
                             </Button>
                         ) : (
                             <IconButton onClick={signOut} color="inherit">
@@ -112,7 +115,11 @@ const MainApp = () => {
                         <ListItemIcon>
                             <HomeIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Home" />
+                        <ListItemText
+                            primary={intl.formatMessage({
+                                id: "MainApp.menu.home",
+                            })}
+                        />
                     </ListItem>
                     <ListItem
                         button
@@ -122,7 +129,11 @@ const MainApp = () => {
                         <ListItemIcon>
                             <SettingsIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Settings" />
+                        <ListItemText
+                            primary={intl.formatMessage({
+                                id: "MainApp.menu.settings",
+                            })}
+                        />
                     </ListItem>
                 </List>
             </Drawer>

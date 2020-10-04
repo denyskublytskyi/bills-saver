@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Script from "react-load-script";
-import capitalize from "lodash/capitalize";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
@@ -23,6 +23,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import logger from "./lib/logger";
 import { useAppContext } from "./context/appContext";
 import Loader from "./Loader";
+import LanguageSelect from "./components/LanguageSelect";
 
 const Settings = () => {
     const {
@@ -32,6 +33,8 @@ const Settings = () => {
         user,
         folders,
         filenamePattern,
+        locale,
+        changeLocale,
     } = useAppContext();
 
     const [isPickerLoading, setIsPickerLoading] = useState(true);
@@ -104,14 +107,19 @@ const Settings = () => {
         setNamePattern(e.target.value);
     }, []);
 
+    const intl = useIntl();
+
     return (
         <Container maxWidth="xs">
             {!isPickerLoading ? (
                 <>
+                    <LanguageSelect value={locale} onChange={changeLocale} />
                     <TextField
                         margin="normal"
                         fullWidth
-                        label="Filename pattern"
+                        label={intl.formatMessage({
+                            id: "Settings.fileNamePatternLabel",
+                        })}
                         InputLabelProps={{ shrink: true }}
                         value={namePattern}
                         onChange={handleNamePatternChange}
@@ -141,7 +149,7 @@ const Settings = () => {
                         }}
                     />
                     <Typography variant="caption" color="textSecondary">
-                        Folders
+                        <FormattedMessage id="Settings.foldersTitle" />
                     </Typography>
                     <List>
                         {["electricity", "water", "home"].map((category) => (
@@ -152,7 +160,9 @@ const Settings = () => {
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
-                                    primary={capitalize(category)}
+                                    primary={intl.formatMessage({
+                                        id: `Category.${category}`,
+                                    })}
                                     secondary={
                                         folders?.[category] ? (
                                             <a
