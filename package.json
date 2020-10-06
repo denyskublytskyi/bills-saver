@@ -15,6 +15,7 @@
     "firebase": "^7.21.0",
     "flat": "^5.0.2",
     "lodash": "^4.17.20",
+    "ms": "^2.1.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-firebaseui": "^4.1.0",

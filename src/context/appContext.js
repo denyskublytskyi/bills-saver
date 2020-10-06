@@ -10,6 +10,7 @@ import "firebase/auth";
 import "firebase/database";
 import noop from "lodash/noop";
 import { useLocalStorage } from "react-use";
+import ms from "ms";
 
 const firebaseConfig = {
     apiKey: "AIzaSyASFO8tv9fqsASlbgUGSIUT3xU9ypU0v0Y",
@@ -30,6 +31,7 @@ const db = firebase.database();
 
 const AppContext = createContext({
     auth,
+    changeFolder: noop,
     changeLocale: noop,
     db,
     filenamePattern: undefined,
@@ -39,6 +41,7 @@ const AppContext = createContext({
     isDBLoading: true,
     isLoading: false,
     language: null,
+    setFoldersLastUpdatedAt: noop,
     setGapiToken: noop,
     signOut: noop,
     user: null,
@@ -72,6 +75,25 @@ const AppContextProvider = ({ children }) => {
         };
     });
 
+    const setFoldersLastUpdatedAt = useCallback(
+        (date = Date.now()) => {
+            db.ref(`settings/${user.uid}`)
+                .child("foldersLastUpdatedAt")
+                .set(date);
+        },
+        [user]
+    );
+
+    const changeFolder = useCallback(
+        (name, folder) => {
+            db.ref(`settings/${user.uid}`)
+                .child("folders")
+                .child(name)
+                .set(folder);
+        },
+        [user]
+    );
+
     const [folders, setFolders] = useState({});
     const [filenamePattern, setFilenamePattern] = useState("{date} счёт");
     useEffect(() => {
@@ -80,7 +102,8 @@ const AppContextProvider = ({ children }) => {
         }
         db.ref(`settings/${user.uid}`).on("value", (snap) => {
             const value = snap.val();
-            setFolders(value?.folders || {});
+            const folders = value?.folders || {};
+            setFolders(folders);
             setFilenamePattern(value?.filenamePattern || "{date} счёт");
 
             if (value?.locale) {
@@ -89,6 +112,68 @@ const AppContextProvider = ({ children }) => {
             setIsDBLoading(false);
         });
     }, [user]);
+
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+
+        db.ref(`settings/${user.uid}`).once("value", async (snap) => {
+            const value = snap.val();
+            const folders = value?.folders || {};
+
+            if (
+                value?.foldersLastUpdatedAt &&
+                value.foldersLastUpdatedAt + ms("2h") > Date.now()
+            ) {
+                return;
+            }
+
+            const foldersKeys = Object.keys(folders);
+
+            if (!foldersKeys.length) {
+                return;
+            }
+
+            await Promise.allSettled(
+                foldersKeys.map(async (key) => {
+                    const params = new URLSearchParams({
+                        fields: ["id", "webViewLink", "name"].join(","),
+                    });
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${
+                            folders[key].id
+                        }?${params.toString()}`,
+                        {
+                            headers: new Headers({
+                                Authorization: `Bearer ${gapiToken}`,
+                            }),
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            await signOut();
+                        }
+                        return;
+                    }
+
+                    if (folders[key].name === result.name) {
+                        return;
+                    }
+
+                    changeFolder(key, {
+                        id: result.id,
+                        name: result.name,
+                        url: result.webViewLink,
+                    });
+                })
+            );
+            setFoldersLastUpdatedAt();
+        });
+    }, [changeFolder, gapiToken, setFoldersLastUpdatedAt, signOut, user]);
 
     const changeLocale = useCallback(
         (locale) => {
@@ -101,6 +186,7 @@ const AppContextProvider = ({ children }) => {
         <AppContext.Provider
             value={{
                 auth,
+                changeFolder,
                 changeLocale,
                 db,
                 filenamePattern,
@@ -110,6 +196,7 @@ const AppContextProvider = ({ children }) => {
                 isDBLoading,
                 isLoading,
                 locale,
+                setFoldersLastUpdatedAt,
                 setGapiToken,
                 signOut,
                 user,

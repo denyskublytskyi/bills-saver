@@ -35,6 +35,7 @@ const Settings = () => {
         filenamePattern,
         locale,
         changeLocale,
+        changeFolder,
     } = useAppContext();
 
     const [isPickerLoading, setIsPickerLoading] = useState(true);
@@ -82,15 +83,12 @@ const Settings = () => {
                         url: folder[window.google.picker.Document.URL],
                     };
 
-                    db.ref(`settings/${user.uid}`)
-                        .child("folders")
-                        .child(category)
-                        .set(newFolder);
+                    changeFolder(category, newFolder);
                 })
                 .build()
                 .setVisible(true);
         },
-        [db, firebaseConfig.appId, gapiToken, user.uid]
+        [changeFolder, firebaseConfig.appId, gapiToken]
     );
 
     const handleFilenamePatternChange = useCallback(() => {
